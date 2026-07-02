@@ -1,0 +1,41 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model Book {
+  id            Int      @id @default(autoincrement())
+  title         String   @db.VarChar(200)
+  author        String   @db.VarChar(100)
+  isbn          String?  @unique @db.VarChar(20)
+  price         Decimal? @db.Decimal(10, 2)
+  genre         String?  @db.VarChar(50)
+  stockQuantity Int      @default(0) @map("stock_quantity")
+  publishedYear Int?     @map("published_year")
+  rating        Decimal? @db.Decimal(3, 2)
+  createdAt     DateTime @default(now()) @map("created_at")
+  orders        Order[]
+
+  @@map("books")
+}
+
+model Order {
+  id           Int      @id @default(autoincrement())
+  bookId       Int      @map("book_id")
+  customerName String   @map("customer_name") @db.VarChar(100)
+  quantity     Int
+  orderDate    DateTime @default(now()) @map("order_date")
+  status       String?  @db.VarChar(20)
+  book         Book     @relation(fields: [bookId], references: [id])
+
+  @@map("orders")
+}
