@@ -8,7 +8,6 @@ import prisma from "../lib/prisma";
 export const getBooks = async (req: Request, res: Response) => {
   try {
     const books = await prisma.book.findMany();
-    console.log(books);
     res.json({
       success: true,
       data: books,
@@ -60,8 +59,65 @@ export const getBookById = async (req: Request, res: Response) => {
   }
 };
 
+// @desc Create a new Book
+// @route POST /api/books
+// @access Public
+
 export const createBook = async (req: Request, res: Response) => {
-  const book = req.body;
-  console.log(book);
-  res.status(200).json("ok");
+  try {
+    const { title, author, price, stockQuantity } = req.body;
+
+    // Validate title and author
+    const trimmedTitle = title?.trim();
+    const trimmedAuthor = author?.trim();
+    if (!trimmedTitle || !trimmedAuthor) {
+      return res.status(400).json({
+        success: false,
+        error: "Title and author are required",
+      });
+    }
+
+    // Validate price
+    const parsedPrice = parseFloat(price);
+    if (isNaN(parsedPrice) || parsedPrice < 0) {
+      return res.status(400).json({
+        success: false,
+        error: "Price must be a positive number",
+      });
+    }
+
+    //Validate stock quantity
+    const parsedStock = parseInt(stockQuantity);
+    if (
+      isNaN(parsedStock) ||
+      parsedStock < 0 ||
+      !Number.isInteger(parsedStock)
+    ) {
+      return res.status(400).json({
+        success: false,
+        error: "Stock quantity must be a non-negative integer",
+      });
+    }
+
+    const newBook = await prisma.book.create({
+      data: {
+        title: trimmedTitle,
+        author: trimmedAuthor,
+        price: parsedPrice,
+        stockQuantity: parsedStock,
+      },
+    });
+
+    res.status(201).json({
+      success: true,
+      data: newBook,
+      message: "Book created successfully",
+    });
+  } catch (error) {
+    console.error("Error creating book:", error);
+    return res.status(500).json({
+      success: false,
+      error: "Failed to create book. Please try again later.",
+    });
+  }
 };
