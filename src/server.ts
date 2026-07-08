@@ -8,9 +8,9 @@ const app = express();
 const port = process.env.PORT || 3000;
 app.use(express.json());
 
-app.use("/books", bookRoutes);
+app.use("/api/books", bookRoutes);
 
-async function startServer() {
+const startServer = async () => {
   try {
     await prisma.$connect();
     console.log("✅ Database connection successful!");
@@ -21,6 +21,6 @@ async function startServer() {
     console.error("❌ Database connection failed:", error);
     process.exit(1);
   }
-}
+};
 
 startServer();
