@@ -4,6 +4,7 @@ import {
   createBook,
   getBookById,
   getBooks,
+  updateBook,
 } from "../controllers/books.controller";
 
 const router: Router = express.Router();
@@ -16,5 +17,8 @@ router.get("/:id", getBookById);
 
 // POST route to create a bew post
 router.post("/", createBook);
+
+// PUT route to update a book
+router.put("/:id", updateBook);
 
 export default router;

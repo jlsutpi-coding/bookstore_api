@@ -1,4 +1,4 @@
-import express, { type Request, type Response } from "express";
+import express from "express";
 
 import prisma from "./lib/prisma";
 import bookRoutes from "./routes/books.route";
