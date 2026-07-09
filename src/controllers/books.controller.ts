@@ -1,10 +1,12 @@
 import type { Request, Response } from "express";
+
 import prisma from "../lib/prisma";
+
+import type { CreateBookInput, UpdateBookInput } from "../types/book.types";
+import { validateBookPayload } from "../utils/bookValidator";
 
 // @desc Get all books
 // @route GET /api/books
-// @access Public
-
 export const getBooks = async (req: Request, res: Response) => {
   try {
     const books = await prisma.book.findMany();
@@ -14,7 +16,7 @@ export const getBooks = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error("Error fetching books:", error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: "Failed to fetch books",
     });
@@ -23,36 +25,33 @@ export const getBooks = async (req: Request, res: Response) => {
 
 // @desc Get a single book by ID
 // @route GET /api/books/:id
-// @access Public
-
-export const getBookById = async (req: Request, res: Response) => {
+export const getBookById = async (
+  req: Request<{ id: string }>,
+  res: Response,
+) => {
   const { id } = req.params;
+  const bookId = parseInt(id, 10);
 
-  if (!id || typeof id !== "string") {
-    return res.status(400).json({
-      success: false,
-      error: "Invalid book ID",
-    });
+  if (isNaN(bookId) || bookId <= 0) {
+    return res.status(400).json({ success: false, error: "Invalid book ID" });
   }
-
   try {
     const book = await prisma.book.findUnique({
-      where: { id: parseInt(id) },
+      where: { id: bookId },
     });
-    if (book) {
-      res.json({
-        success: true,
-        data: book,
-      });
-    } else {
-      res.status(404).json({
+    if (!book) {
+      return res.status(400).json({
         success: false,
         error: "Book not found",
       });
     }
+    return res.json({
+      success: true,
+      data: book,
+    });
   } catch (error) {
     console.error("Error fetching book:", error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: "Failed to fetch book",
     });
@@ -61,54 +60,18 @@ export const getBookById = async (req: Request, res: Response) => {
 
 // @desc Create a new Book
 // @route POST /api/books
-// @access Public
-
-export const createBook = async (req: Request, res: Response) => {
+export const createBook = async (
+  req: Request<{}, {}, CreateBookInput>,
+  res: Response,
+) => {
+  const { error, data } = validateBookPayload(req.body);
+  if (error || !data) {
+    return res.status(400).json({ success: false, error });
+  }
   try {
-    const { title, author, price, stockQuantity } = req.body;
+    const newBook = await prisma.book.create({ data });
 
-    // Validate title and author
-    const trimmedTitle = title?.trim();
-    const trimmedAuthor = author?.trim();
-    if (!trimmedTitle || !trimmedAuthor) {
-      return res.status(400).json({
-        success: false,
-        error: "Title and author are required",
-      });
-    }
-
-    // Validate price
-    const parsedPrice = parseFloat(price);
-    if (isNaN(parsedPrice) || parsedPrice < 0) {
-      return res.status(400).json({
-        success: false,
-        error: "Price must be a positive number",
-      });
-    }
-
-    //Validate stock quantity
-    const parsedStock = parseInt(stockQuantity);
-    if (
-      isNaN(parsedStock) ||
-      parsedStock < 0 ||
-      !Number.isInteger(parsedStock)
-    ) {
-      return res.status(400).json({
-        success: false,
-        error: "Stock quantity must be a non-negative integer",
-      });
-    }
-
-    const newBook = await prisma.book.create({
-      data: {
-        title: trimmedTitle,
-        author: trimmedAuthor,
-        price: parsedPrice,
-        stockQuantity: parsedStock,
-      },
-    });
-
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       data: newBook,
       message: "Book created successfully",
@@ -118,6 +81,54 @@ export const createBook = async (req: Request, res: Response) => {
     return res.status(500).json({
       success: false,
       error: "Failed to create book. Please try again later.",
+    });
+  }
+};
+
+// @desc Update a single book
+// @route GET /api/books/:id
+export const updateBook = async (
+  req: Request<{ id: string }, {}, UpdateBookInput>,
+  res: Response,
+) => {
+  const { id } = req.params;
+
+  // Validate ID
+  const bookId = parseInt(id);
+
+  if (isNaN(bookId) || bookId <= 0) {
+    return res.status(400).json({
+      success: false,
+      error: "Book ID must be a valid positive number",
+    });
+  }
+
+  const { error, data } = validateBookPayload(req.body);
+
+  if (error || !data) {
+    return res.status(400).json({
+      success: false,
+      error,
+    });
+  }
+
+  try {
+    const book = await prisma.book.update({
+      where: { id: bookId },
+      data: data,
+    });
+
+    return res.json({
+      success: true,
+      data: book,
+      message: "Book updated successfully",
+    });
+  } catch (error) {
+    console.error("Error updating book:", error);
+
+    return res.status(500).json({
+      success: false,
+      error: "Failed to update book",
     });
   }
 };
