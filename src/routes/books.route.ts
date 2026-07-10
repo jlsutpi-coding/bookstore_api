@@ -6,6 +6,7 @@ import {
   getBooks,
   updateBook,
 } from "../controllers/books.controller";
+import { validateBookId } from "../middlewares/books.middleware";
 
 const router: Router = express.Router();
 
@@ -13,12 +14,12 @@ const router: Router = express.Router();
 router.get("/", getBooks);
 
 // GET route to get a single book
-router.get("/:id", getBookById);
+router.get("/:id", validateBookId, getBookById);
 
 // POST route to create a bew post
 router.post("/", createBook);
 
 // PUT route to update a book
-router.put("/:id", updateBook);
+router.put("/:id", validateBookId, updateBook);
 
 export default router;

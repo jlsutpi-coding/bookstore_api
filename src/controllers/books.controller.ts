@@ -32,9 +32,6 @@ export const getBookById = async (
   const { id } = req.params;
   const bookId = parseInt(id, 10);
 
-  if (isNaN(bookId) || bookId <= 0) {
-    return res.status(400).json({ success: false, error: "Invalid book ID" });
-  }
   try {
     const book = await prisma.book.findUnique({
       where: { id: bookId },
@@ -95,13 +92,6 @@ export const updateBook = async (
 
   // Validate ID
   const bookId = parseInt(id);
-
-  if (isNaN(bookId) || bookId <= 0) {
-    return res.status(400).json({
-      success: false,
-      error: "Book ID must be a valid positive number",
-    });
-  }
 
   const { error, data } = validateBookPayload(req.body);
 
