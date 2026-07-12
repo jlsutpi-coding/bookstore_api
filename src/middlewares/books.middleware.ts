@@ -8,8 +8,6 @@ export const validateBookId = (
   const { id } = req.params;
   const bookId = parseInt(id);
 
-  console.log("hi middleware");
-
   if (isNaN(bookId) || bookId <= 0) {
     return res.status(400).json({
       success: false,
