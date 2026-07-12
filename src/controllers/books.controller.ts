@@ -55,6 +55,39 @@ export const getBookById = async (
   }
 };
 
+// @desc Search a book from books
+// @route GET /api/books/search
+
+export const searchBook = async (req: Request, res: Response) => {
+  const searchTerm = (req.query.q as string)?.trim();
+
+  if (!searchTerm) {
+    return res.status(400).json({
+      success: false,
+      error: "Please provide a search using ?q=",
+    });
+  }
+  try {
+    const results = await prisma.book.findMany({
+      where: {
+        title: {
+          contains: searchTerm,
+        },
+      },
+    });
+    return res.json({
+      success: true,
+      data: results,
+    });
+  } catch (error) {
+    console.error("Searching book error", error);
+    return res.status(500).json({
+      success: false,
+      error: "Failed to search book.",
+    });
+  }
+};
+
 // @desc Create a new Book
 // @route POST /api/books
 export const createBook = async (
