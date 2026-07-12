@@ -2,6 +2,7 @@ import express, { Router } from "express";
 
 import {
   createBook,
+  deleteBook,
   getBookById,
   getBooks,
   searchBook,
@@ -25,5 +26,7 @@ router.post("/", createBook);
 
 // PUT route to update a book
 router.put("/:id", validateBookId, updateBook);
+
+router.delete("/:id", validateBookId, deleteBook);
 
 export default router;

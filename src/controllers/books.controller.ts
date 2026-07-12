@@ -18,7 +18,7 @@ export const getBooks = async (req: Request, res: Response) => {
     console.error("Error fetching books:", error);
     return res.status(500).json({
       success: false,
-      error: "Failed to fetch books",
+      error: "Failed to fetch books.",
     });
   }
 };
@@ -39,24 +39,31 @@ export const getBookById = async (
     if (!book) {
       return res.status(400).json({
         success: false,
-        error: "Book not found",
+        error: "Book not found.",
       });
     }
     return res.json({
       success: true,
       data: book,
     });
-  } catch (error) {
+  } catch (error: any) {
+    // Prisma code for "Record to delete does not exist."
+    if (error.code === "P2025") {
+      return res.status(404).json({
+        success: false,
+        error: "An unexpected error occured while searching the book.",
+      });
+    }
     console.error("Error fetching book:", error);
     return res.status(500).json({
       success: false,
-      error: "Failed to fetch book",
+      error: "Failed to fetch book.",
     });
   }
 };
 
 // @desc Search a book from books
-// @route GET /api/books/search
+// @route GET /api/books/search?q=searchTerm
 
 export const searchBook = async (req: Request, res: Response) => {
   const searchTerm = (req.query.q as string)?.trim();
@@ -104,7 +111,7 @@ export const createBook = async (
     return res.status(201).json({
       success: true,
       data: newBook,
-      message: "Book created successfully",
+      message: "Book created successfully.",
     });
   } catch (error) {
     console.error("Error creating book:", error);
@@ -144,14 +151,56 @@ export const updateBook = async (
     return res.json({
       success: true,
       data: book,
-      message: "Book updated successfully",
+      message: "Book updated successfully.",
     });
-  } catch (error) {
+  } catch (error: any) {
+    // Prisma code for "Record to delete does not exist."
+    if (error.code === "P2025") {
+      return res.status(404).json({
+        success: false,
+        error: "An unexpected error occured while updating the book.",
+      });
+    }
     console.error("Error updating book:", error);
 
     return res.status(500).json({
       success: false,
-      error: "Failed to update book",
+      error: "Failed to update book.",
+    });
+  }
+};
+
+// @desc Delete a single book
+// @route DELETE /api/books/:id
+export const deleteBook = async (
+  req: Request<{ id: string }>,
+  res: Response,
+) => {
+  const { id } = req.params;
+  try {
+    await prisma.book.delete({
+      where: {
+        id: Number(id),
+      },
+    });
+
+    return res.json({
+      success: true,
+      message: "Book deleted successfully.",
+    });
+  } catch (error: any) {
+    // Prisma code for "Record to delete does not exist."
+    if (error.code === "P2025") {
+      return res.status(404).json({
+        success: false,
+        error: "An unexpected error occured while deleting the book.",
+      });
+    }
+
+    console.error("Deleting book error", error);
+    return res.status(500).json({
+      success: false,
+      error: "Failed to delete the book. Ensure the ID is valid.",
     });
   }
 };
