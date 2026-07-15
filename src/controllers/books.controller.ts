@@ -10,7 +10,7 @@ import { validateBookPayload } from "../utils/booksValidator";
 export const getBooks = async (req: Request, res: Response) => {
   try {
     const books = await prisma.book.findMany();
-    res.json({
+    return res.json({
       success: true,
       data: books,
     });
