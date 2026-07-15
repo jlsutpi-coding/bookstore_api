@@ -5,7 +5,25 @@ import prisma from "../lib/prisma";
 import type { CreateOrderInput } from "../types/orders.types";
 import { validatedOrderPayload } from "../utils/ordersValidator";
 
-// @desc Post order
+// @desc Get orders
+// @route GET /api/orders
+export const getOrders = async (req: Request, res: Response) => {
+  try {
+    const orders = await prisma.order.findMany();
+    return res.json({
+      success: true,
+      data: orders,
+    });
+  } catch (error) {
+    console.error("Orders fetching error: ", error);
+    return res.status(500).json({
+      success: false,
+      error: "Someting went wrong.",
+    });
+  }
+};
+
+// @desc Post orders
 // @route POST /api/orders
 export const postOrders = async (
   req: Request<{}, {}, CreateOrderInput>,
