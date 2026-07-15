@@ -1,4 +1,4 @@
-import type { BaseBookInput } from "../types/book.types";
+import type { BaseBookInput } from "../types/books.types";
 
 export interface ValidatedBookData {
   title: string;

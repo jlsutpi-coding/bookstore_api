@@ -2,8 +2,8 @@ import type { Request, Response } from "express";
 
 import prisma from "../lib/prisma";
 
-import type { CreateBookInput, UpdateBookInput } from "../types/book.types";
-import { validateBookPayload } from "../utils/bookValidator";
+import type { CreateBookInput, UpdateBookInput } from "../types/books.types";
+import { validateBookPayload } from "../utils/booksValidator";
 
 // @desc Get all books
 // @route GET /api/books

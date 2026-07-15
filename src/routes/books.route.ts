@@ -10,23 +10,24 @@ import {
 } from "../controllers/books.controller";
 import { validateBookId } from "../middlewares/books.middleware";
 
-const router: Router = express.Router();
+const boooksRouter: Router = express.Router();
 
 // GET route to get all books
-router.get("/", getBooks);
+boooksRouter.get("/", getBooks);
 
 // GET route to search book
-router.get("/search", searchBook);
+boooksRouter.get("/search", searchBook);
 
 // GET route to get a single book
-router.get("/:id", validateBookId, getBookById);
+boooksRouter.get("/:id", validateBookId, getBookById);
 
 // POST route to create a bew post
-router.post("/", createBook);
+boooksRouter.post("/", createBook);
 
 // PUT route to update a book
-router.put("/:id", validateBookId, updateBook);
+boooksRouter.put("/:id", validateBookId, updateBook);
 
-router.delete("/:id", validateBookId, deleteBook);
+// DELETE route to delete a single book
+boooksRouter.delete("/:id", validateBookId, deleteBook);
 
-export default router;
+export default boooksRouter;
