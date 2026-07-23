@@ -1,6 +1,7 @@
+import type { Prisma } from "@prisma/client/extension";
 import z from "zod";
 
-import type { Prisma } from "../../generated/prisma/client";
+// import type { Prisma } from "../../generated/prisma/client";
 
 export const CreateBookSchema = z.object({
   title: z.string().min(1, { message: "Book title is required." }).trim(),
