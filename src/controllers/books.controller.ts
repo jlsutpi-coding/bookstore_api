@@ -1,6 +1,9 @@
 import type { Request, Response } from "express";
 import prisma from "../lib/prisma";
-import { validateCreateBook } from "../utils/booksValidator";
+import {
+  validateCreateBook,
+  validateSearchBook,
+} from "../utils/booksValidator";
 
 // @desc Get all books
 // @route GET /api/books
@@ -160,6 +163,47 @@ export const deleteBook = async (
     return res.status(500).json({
       success: false,
       error: "Failed to delete the book. Ensure the ID is valid.",
+    });
+  }
+};
+
+// @desc Search a book
+// @route GET /api/books?q=bookName
+export const searchBook = async (req: Request, res: Response) => {
+  const { q } = req.query;
+  const { error, data } = validateSearchBook(q);
+
+  if (error || !data) {
+    return res.status(400).json({ success: false, error });
+  }
+
+  try {
+    const book = await prisma.book.findFirst({
+      where: {
+        title: {
+          contains: data, // Using 'contains' for partial search (optional but common for search)
+          mode: "insensitive", // Case-insensitive search
+        },
+      },
+    });
+
+    if (!book) {
+      return res.status(404).json({
+        success: false,
+        error: "Book is not found with that title!",
+      });
+    }
+
+    // Return the found book
+    return res.json({
+      success: true,
+      data: book,
+    });
+  } catch (error) {
+    console.error("Searching book error:", error);
+    return res.status(500).json({
+      success: false,
+      error: "Failed to search the book.",
     });
   }
 };

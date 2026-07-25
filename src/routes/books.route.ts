@@ -5,8 +5,10 @@ import {
   deleteBook,
   getBookById,
   getBooks,
+  searchBook,
 } from "../controllers/books.controller";
 import { validateBookId } from "../middlewares/books.middleware";
+import { SearchBookSchema } from "../utils/booksValidator";
 
 const boooksRouter: Router = express.Router();
 
@@ -14,7 +16,7 @@ const boooksRouter: Router = express.Router();
 boooksRouter.get("/", getBooks);
 
 // GET route to search book
-// boooksRouter.get("/search", searchBook);
+boooksRouter.get("/search", searchBook);
 
 // GET route to get a single book
 boooksRouter.get("/:id", validateBookId, getBookById);

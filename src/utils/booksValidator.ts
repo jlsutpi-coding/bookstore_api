@@ -1,7 +1,6 @@
-import type { Prisma } from "@prisma/client/extension";
 import z from "zod";
 
-// import type { Prisma } from "../../generated/prisma/client";
+import type { Prisma } from "../../generated/prisma/client";
 
 export const CreateBookSchema = z.object({
   title: z.string().min(1, { message: "Book title is required." }).trim(),
@@ -32,5 +31,24 @@ export const validateCreateBook = (body: unknown) => {
   return {
     error: null,
     data: result.data as Prisma.BookCreateInput,
+  };
+};
+
+export const SearchBookSchema = z
+  .string({ message: "Book title is required." })
+  .min(1, { message: "Book title cannot be empty." })
+  .trim();
+export const validateSearchBook = (param: unknown) => {
+  const result = SearchBookSchema.safeParse(param);
+  if (!result.success) {
+    return {
+      error: result.error.message,
+      data: null,
+    };
+  }
+
+  return {
+    error: null,
+    data: result.data,
   };
 };
