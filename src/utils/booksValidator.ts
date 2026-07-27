@@ -21,6 +21,8 @@ export const CreateBookSchema = z.object({
   rating: z.number().min(0).max(5).nullable().optional(),
 });
 
+export const UpdateBookSchema = CreateBookSchema.partial();
+
 export const validateCreateBook = (body: unknown) => {
   const result = CreateBookSchema.safeParse(body);
 
@@ -34,6 +36,21 @@ export const validateCreateBook = (body: unknown) => {
   };
 };
 
+export const validateUpdateBook = (body: unknown) => {
+  const result = UpdateBookSchema.safeParse(body);
+
+  if (!result.success) {
+    return {
+      error: result.error.message,
+      data: null,
+    };
+  }
+
+  return {
+    error: null,
+    data: result.data as Prisma.BookUpdateInput,
+  };
+};
 export const SearchBookSchema = z
   .string({ message: "Book title is required." })
   .min(1, { message: "Book title cannot be empty." })

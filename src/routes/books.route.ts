@@ -6,9 +6,9 @@ import {
   getBookById,
   getBooks,
   searchBook,
+  updateBook,
 } from "../controllers/books.controller";
 import { validateBookId } from "../middlewares/books.middleware";
-import { SearchBookSchema } from "../utils/booksValidator";
 
 const boooksRouter: Router = express.Router();
 
@@ -25,7 +25,7 @@ boooksRouter.get("/:id", validateBookId, getBookById);
 boooksRouter.post("/", createBook);
 
 // PUT route to update a book
-// boooksRouter.put("/:id", validateBookId, updateBook);
+boooksRouter.put("/:id", validateBookId, updateBook);
 
 // DELETE route to delete a single book
 boooksRouter.delete("/:id", validateBookId, deleteBook);
