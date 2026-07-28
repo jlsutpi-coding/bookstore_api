@@ -1,5 +1,4 @@
 import type { NextFunction, Request, Response } from "express";
-import z from "zod";
 
 export const validateBookId = (
   req: Request<{ id: string }>,
@@ -16,6 +15,6 @@ export const validateBookId = (
     });
   }
 
-  req.params.id = String(bookId);
+  (req as any).id = bookId;
   next();
 };
