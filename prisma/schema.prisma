@@ -12,10 +12,19 @@ datasource db {
   provider = "mysql"
 }
 
+model Author {
+  id Int @id @default(autoincrement())
+  name String @db.VarChar(100)
+  bio String? @db.Text
+  books Book[]
+  createdAt DateTime @default(now()) @map("created_at")
+  @@map("authors")
+}
 model Book {
   id            Int      @id @default(autoincrement())
   title         String   @db.VarChar(200)
-  author        String   @db.VarChar(100)
+  authorId      Int   @map("author_id")
+  author        Author   @relation(fields: [authorId], references: [id])
   isbn          String?  @unique @db.VarChar(20)
   price         Decimal? @db.Decimal(10, 2)
   genre         String?  @db.VarChar(50)
@@ -24,9 +33,11 @@ model Book {
   rating        Decimal? @db.Decimal(3, 2)
   createdAt     DateTime @default(now()) @map("created_at")
   orders        Order[]
-
+  
+  @@index([authorId])
   @@map("books")
 }
+
 
 model Order {
   id           Int      @id @default(autoincrement())
