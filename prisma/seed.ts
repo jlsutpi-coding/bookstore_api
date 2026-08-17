@@ -4,6 +4,7 @@ async function main() {
   console.log("Starting database seeding...");
 
   await prisma.book.deleteMany();
+  await prisma.author.deleteMany();
 }
 main()
   .catch((e) => {
