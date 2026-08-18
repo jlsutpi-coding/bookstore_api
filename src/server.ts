@@ -3,6 +3,7 @@ import express from "express";
 import prisma from "./lib/prisma";
 import bookRoutes from "./routes/books.route";
 import ordersRouter from "./routes/orders.route";
+import authorRouter from "./routes/authors.route";
 
 const app = express();
 
@@ -12,6 +13,8 @@ app.use(express.json());
 app.use("/api/books", bookRoutes);
 
 app.use("/api/orders", ordersRouter);
+
+app.use("/api/authors", authorRouter);
 
 const startServer = async () => {
   try {
