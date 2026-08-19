@@ -11,11 +11,10 @@ import {
 // @desc Get all books
 // @route GET /api/books
 // @access Public
-
 export const getBooks = async (req: Request, res: Response) => {
   try {
     const books = await prisma.book.findMany();
-    res.json({
+    return res.json({
       success: true,
       data: books,
     });
@@ -31,16 +30,11 @@ export const getBooks = async (req: Request, res: Response) => {
 // @desc Get a single book by ID
 // @route GET /api/books/:id
 // @access Public
-
-export const getBookById = async (req: Request, res: Response) => {
-  const { id } = req.params;
-
-  if (!id || typeof id !== "string") {
-    return res.status(400).json({
-      success: false,
-      error: "Invalid book ID",
-    });
-  }
+export const getBookById = async (
+  req: Request<{}, {}, { id: string }>,
+  res: Response,
+) => {
+  const id = (req as any).id;
 
   try {
     const book = await prisma.book.findUnique({
@@ -71,7 +65,10 @@ export const getBookById = async (req: Request, res: Response) => {
 export const createBook = async (req: Request, res: Response) => {
   const { error, data } = validateCreateBook(req.body);
   if (error || !data) {
-    return res.status(400).json({ success: false, error });
+    return res.status(400).json({
+      success: false,
+      error: error,
+    });
   }
   try {
     const newBook = await prisma.book.create({ data });
@@ -198,7 +195,6 @@ export const searchBook = async (req: Request, res: Response) => {
       });
     }
 
-    // Return the found book
     return res.json({
       success: true,
       data: book,
