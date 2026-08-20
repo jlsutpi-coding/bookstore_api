@@ -20,6 +20,31 @@ export const getAuthors = async (req: Request, res: Response) => {
   }
 };
 
+// @desc Get a single author by ID
+// @route GET /api/authors/:id
+// @access Public
 export const getAuthorById = async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const id = (req as any).id;
+  try {
+    const author = await prisma.author.findUnique({
+      where: { id: id },
+    });
+    if (author) {
+      res.json({
+        success: true,
+        data: author,
+      });
+    } else {
+      res.status(404).json({
+        success: false,
+        error: "Author not found",
+      });
+    }
+  } catch (error) {
+    console.error("Error fetching author:", error);
+    res.status(500).json({
+      success: false,
+      error: "Failed to fetch author",
+    });
+  }
 };
