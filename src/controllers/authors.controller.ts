@@ -1,5 +1,8 @@
 import prisma from "../lib/prisma";
+
 import type { Request, Response } from "express";
+
+import { validateCreateAuthor } from "../utils/authorsValidator";
 
 // @desc Get all authors
 // @route GET /api/authors
@@ -45,6 +48,38 @@ export const getAuthorById = async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       error: "Failed to fetch author",
+    });
+  }
+};
+
+// @desc Create a new author
+// @route POST /api/authors
+// @access Public
+export const createAuthor = async (req: Request, res: Response) => {
+  const { data, error } = validateCreateAuthor(req.body);
+
+  if (error) {
+    return res.status(400).json({
+      success: false,
+      error,
+    });
+  }
+
+  try {
+    const newAuthor = await prisma.author.create({
+      data: data,
+    });
+
+    return res.status(201).json({
+      success: true,
+      data: newAuthor,
+    });
+  } catch (error) {
+    console.error("Error creating author:", error);
+
+    res.status(500).json({
+      success: false,
+      error: "Failed to create author",
     });
   }
 };
