@@ -63,7 +63,7 @@ export const getBookById = async (
 // @desc Create a new Book
 // @route POST /api/books
 export const createBook = async (req: Request, res: Response) => {
-  const { error, data } = validateCreateBook(req.body);
+  const { error, data } = await validateCreateBook(req.body);
   if (error || !data) {
     return res.status(400).json({
       success: false,
@@ -96,7 +96,7 @@ export const updateBook = async (
   const id = (req as any).id;
   const bookId = parseInt(id, 10);
 
-  const { error, data } = validateUpdateBook(req.body);
+  const { error, data } = await validateUpdateBook(req.body);
 
   if (error || !data) {
     return res.status(400).json({

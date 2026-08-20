@@ -2,6 +2,8 @@ import z from "zod";
 
 import type { Prisma } from "../../generated/prisma/client";
 
+import { checkAuthorExists } from "../helper/checkAuthorExists";
+
 export const CreateBookSchema = z.object({
   title: z.string().min(1, { message: "Book title is required." }).trim(),
   isbn: z.string().nullable().optional(),
@@ -30,20 +32,28 @@ export const SearchBookSchema = z
 
 export const UpdateBookSchema = CreateBookSchema.partial();
 
-export const validateCreateBook = (body: unknown) => {
+export const validateCreateBook = async (body: unknown) => {
   const result = CreateBookSchema.safeParse(body);
 
   if (!result.success) {
     return { error: result.error.issues, data: null };
   }
-
+  if (result.data.authorId) {
+    const exists = await checkAuthorExists(result.data.authorId);
+    if (!exists) {
+      return {
+        error: [{ message: "Author not found" }],
+        data: null,
+      };
+    }
+  }
   return {
     error: null,
     data: result.data as Prisma.BookUncheckedCreateInput,
   };
 };
 
-export const validateUpdateBook = (body: unknown) => {
+export const validateUpdateBook = async (body: unknown) => {
   const result = UpdateBookSchema.safeParse(body);
 
   if (!result.success) {
@@ -53,9 +63,18 @@ export const validateUpdateBook = (body: unknown) => {
     };
   }
 
+  if (result.data.authorId) {
+    const exists = await checkAuthorExists(result.data.authorId);
+    if (!exists) {
+      return {
+        error: [{ message: "Author not found" }],
+        data: null,
+      };
+    }
+  }
   return {
     error: null,
-    data: result.data as Prisma.BookUpdateInput,
+    data: result.data as Prisma.BookUncheckedUpdateInput,
   };
 };
 
