@@ -1,7 +1,7 @@
 import type { Prisma } from "../../generated/prisma/client";
 import {
   CreateAuthorSchema,
-  type CreateAuthorInput,
+  UpdateAuthorSchema,
 } from "../schemas/authors.schema";
 
 export const validateCreateAuthor = (data: unknown) => {
@@ -17,5 +17,21 @@ export const validateCreateAuthor = (data: unknown) => {
   return {
     error: null,
     data: result.data as Prisma.AuthorUncheckedCreateInput,
+  };
+};
+
+export const validateUpdateAuthor = (data: unknown) => {
+  const result = UpdateAuthorSchema.safeParse(data);
+
+  if (!result.success) {
+    return {
+      error: result.error.issues,
+      data: null,
+    };
+  }
+
+  return {
+    error: null,
+    data: result.data as Prisma.AuthorUncheckedUpdateInput,
   };
 };

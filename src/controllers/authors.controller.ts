@@ -2,7 +2,10 @@ import prisma from "../lib/prisma";
 
 import type { Request, Response } from "express";
 
-import { validateCreateAuthor } from "../utils/authorsValidator";
+import {
+  validateCreateAuthor,
+  validateUpdateAuthor,
+} from "../utils/authorsValidator";
 
 // @desc Get all authors
 // @route GET /api/authors
@@ -80,6 +83,47 @@ export const createAuthor = async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       error: "Failed to create author",
+    });
+  }
+};
+
+// @desc Update an existing author
+// @route PUT /api/authors/:id
+// @access Public
+export const updateAuthor = async (req: Request, res: Response) => {
+  const id = (req as any).id;
+
+  const { data, error } = validateUpdateAuthor(req.body);
+
+  if (error) {
+    return res.status(400).json({
+      success: false,
+      error,
+    });
+  }
+
+  try {
+    const updatedAuthor = await prisma.author.update({
+      where: { id: id },
+      data: data,
+    });
+    return res.json({
+      success: true,
+      data: updatedAuthor,
+    });
+  } catch (error: any) {
+    // Prisma code for "Record to delete does not exist."
+    if (error.code === "P2025") {
+      return res.status(404).json({
+        success: false,
+        error: "An unexpected error occured while updating the book.",
+      });
+    }
+    console.error("Error updating book:", error);
+
+    return res.status(500).json({
+      success: false,
+      error: "Failed to update book.",
     });
   }
 };
