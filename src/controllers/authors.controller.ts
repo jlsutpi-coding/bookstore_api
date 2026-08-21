@@ -116,14 +116,44 @@ export const updateAuthor = async (req: Request, res: Response) => {
     if (error.code === "P2025") {
       return res.status(404).json({
         success: false,
-        error: "An unexpected error occured while updating the book.",
+        error: "Author not found",
       });
     }
-    console.error("Error updating book:", error);
+    console.error("Error updating author:", error);
 
     return res.status(500).json({
       success: false,
-      error: "Failed to update book.",
+      error: "Failed to update author.",
+    });
+  }
+};
+
+// @desc Delete an author by ID
+// @route DELETE /api/authors/:id
+// @access Public
+export const deleteAuthor = async (req: Request, res: Response) => {
+  const id = (req as any).id;
+
+  try {
+    const deletedAuthor = await prisma.author.delete({
+      where: { id: id },
+    });
+    return res.json({
+      success: true,
+      data: deletedAuthor,
+    });
+  } catch (error: any) {
+    // Prisma code for "Record to delete does not exist."
+    if (error.code === "P2025") {
+      return res.status(404).json({
+        success: false,
+        error: "Author not found",
+      });
+    }
+    console.error("Error deleting author:", error);
+    return res.status(500).json({
+      success: false,
+      error: "Failed to delete author",
     });
   }
 };

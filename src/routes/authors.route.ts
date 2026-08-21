@@ -2,6 +2,7 @@ import express, { Router } from "express";
 
 import {
   createAuthor,
+  deleteAuthor,
   getAuthorById,
   getAuthors,
   updateAuthor,
@@ -17,5 +18,7 @@ authorRouter.get("/:id", validateAuthorId, getAuthorById);
 authorRouter.post("/", createAuthor);
 
 authorRouter.put("/:id", validateAuthorId, updateAuthor);
+
+authorRouter.delete("/:id", validateAuthorId, deleteAuthor);
 
 export default authorRouter;
