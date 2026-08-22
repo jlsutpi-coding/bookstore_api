@@ -17,6 +17,7 @@ model Author {
   name String @db.VarChar(100)
   bio String? @db.Text
   books Book[]
+  literaryTalks LiteraryTalk[]
   createdAt DateTime @default(now()) @map("created_at")
   @@map("authors")
 }
@@ -30,12 +31,33 @@ model Book {
   genre         String?  @db.VarChar(50)
   stockQuantity Int      @default(0) @map("stock_quantity")
   publishedYear Int?     @map("published_year")
-  rating        Decimal? @db.Decimal(3, 2)
+
+  // Media / Digital Assets
+  youtubeUrl   String?  @map("youtube_url") @db.VarChar(500)
+
   createdAt     DateTime @default(now()) @map("created_at")
   orders        Order[]
   
   @@index([authorId])
   @@map("books")
+}
+
+model LiteraryTalk {
+  id         Int      @id @default(autoincrement())
+  title       String   @db.VarChar(200)
+  description String?  @db.Text
+  youtubeUrl  String  @map("youtube_url") @db.VarChar(500)
+  eventDate        DateTime @map("date")
+  location    String?  @db.VarChar(100)
+
+  // Relations
+  authorId  Int     @map("author_id")
+  author    Author  @relation(fields: [authorId], references: [id])
+
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([authorId])
+  @@map("literary_talks")
 }
 
 
