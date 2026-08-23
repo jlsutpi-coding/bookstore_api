@@ -13,18 +13,20 @@ datasource db {
 }
 
 model Author {
-  id Int @id @default(autoincrement())
-  name String @db.VarChar(100)
-  bio String? @db.Text
-  books Book[]
+  id            Int            @id @default(autoincrement())
+  name          String         @db.VarChar(100)
+  bio           String?        @db.Text
+  books         Book[]
   literaryTalks LiteraryTalk[]
-  createdAt DateTime @default(now()) @map("created_at")
+  createdAt     DateTime       @default(now()) @map("created_at")
+
   @@map("authors")
 }
+
 model Book {
   id            Int      @id @default(autoincrement())
   title         String   @db.VarChar(200)
-  authorId      Int   @map("author_id")
+  authorId      Int      @map("author_id")
   author        Author   @relation(fields: [authorId], references: [id])
   isbn          String?  @unique @db.VarChar(20)
   price         Decimal? @db.Decimal(10, 2)
@@ -33,33 +35,32 @@ model Book {
   publishedYear Int?     @map("published_year")
 
   // Media / Digital Assets
-  youtubeUrl   String?  @map("youtube_url") @db.VarChar(500)
+  youtubeUrl String? @map("youtube_url") @db.VarChar(500)
 
-  createdAt     DateTime @default(now()) @map("created_at")
-  orders        Order[]
-  
+  createdAt DateTime @default(now()) @map("created_at")
+  orders    Order[]
+
   @@index([authorId])
   @@map("books")
 }
 
 model LiteraryTalk {
-  id         Int      @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   title       String   @db.VarChar(200)
   description String?  @db.Text
-  youtubeUrl  String  @map("youtube_url") @db.VarChar(500)
-  eventDate        DateTime @map("date")
+  youtubeUrl  String   @map("youtube_url") @db.VarChar(500)
+  eventDate   DateTime @map("date")
   location    String?  @db.VarChar(100)
 
   // Relations
-  authorId  Int     @map("author_id")
-  author    Author  @relation(fields: [authorId], references: [id])
+  authorId Int    @map("author_id")
+  author   Author @relation(fields: [authorId], references: [id])
 
-  createdAt   DateTime @default(now()) @map("created_at")
+  createdAt DateTime @default(now()) @map("created_at")
 
   @@index([authorId])
   @@map("literary_talks")
 }
-
 
 model Order {
   id           Int      @id @default(autoincrement())
