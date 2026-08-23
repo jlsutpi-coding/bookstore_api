@@ -4,6 +4,7 @@ import prisma from "./lib/prisma";
 import bookRoutes from "./routes/books.route";
 import ordersRouter from "./routes/orders.route";
 import authorRouter from "./routes/authors.route";
+import literaryTalksRouter from "./routes/literaryTalks.route";
 
 const app = express();
 
@@ -15,6 +16,8 @@ app.use("/api/books", bookRoutes);
 app.use("/api/orders", ordersRouter);
 
 app.use("/api/authors", authorRouter);
+
+app.use("/api/literary-talks", literaryTalksRouter);
 
 const startServer = async () => {
   try {

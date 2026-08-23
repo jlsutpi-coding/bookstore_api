@@ -20,7 +20,7 @@ export const getBooks = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error("Error fetching books:", error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: "Failed to fetch books",
     });
@@ -41,19 +41,19 @@ export const getBookById = async (
       where: { id: parseInt(id) },
     });
     if (book) {
-      res.json({
+      return res.json({
         success: true,
         data: book,
       });
     } else {
-      res.status(404).json({
+      return res.status(404).json({
         success: false,
         error: "Book not found",
       });
     }
   } catch (error) {
     console.error("Error fetching book:", error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: "Failed to fetch book",
     });
