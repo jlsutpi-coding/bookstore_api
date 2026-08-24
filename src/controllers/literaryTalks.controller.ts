@@ -18,3 +18,32 @@ export const getLiteraryTalks = async (req: Request, res: Response) => {
     });
   }
 };
+
+// @desc Get a literary talk by ID
+// @route GET /api/literary-talks/:id
+// @access Public
+export const getLiteraryTalkById = async (req: Request, res: Response) => {
+  try {
+    const id = (req as any).id;
+    const literaryTalk = await prisma.literaryTalk.findUnique({
+      where: {
+        id: parseInt(id),
+      },
+    });
+    if (!literaryTalk) {
+      return res.status(404).json({
+        success: false,
+        message: "Literary talk not found",
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      data: literaryTalk,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
