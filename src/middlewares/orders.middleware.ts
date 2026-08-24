@@ -15,7 +15,6 @@ export const validateOrderId = (
     });
   }
 
-  //   req.params.orderId = String(id);
   (req as any).orderIdNumber = id;
   next();
 };
