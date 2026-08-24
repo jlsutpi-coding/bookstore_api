@@ -4,6 +4,7 @@ import {
   createLiteraryTalk,
   getLiteraryTalkById,
   getLiteraryTalks,
+  updateLiteraryTalk,
 } from "../controllers/literaryTalks.controller";
 
 const literaryTalksRouter: Router = express.Router();
@@ -13,5 +14,7 @@ literaryTalksRouter.get("/", getLiteraryTalks);
 literaryTalksRouter.get("/:id", validateLiteraryTalkId, getLiteraryTalkById);
 
 literaryTalksRouter.post("/", createLiteraryTalk);
+
+literaryTalksRouter.put("/:id", validateLiteraryTalkId, updateLiteraryTalk);
 
 export default literaryTalksRouter;

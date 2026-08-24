@@ -26,4 +26,5 @@ export const CreateLiteraryTalkSchema = z.object({
     .positive({ message: "Author ID must be a positive integer." }),
 });
 
+export const UpdateLiteraryTalkSchema = CreateLiteraryTalkSchema.partial();
 export type CreateLiteraryTalkInput = z.infer<typeof CreateLiteraryTalkSchema>;
