@@ -135,15 +135,12 @@ export const updateBook = async (
 
 // @desc Delete a single book
 // @route DELETE /api/books/:id
-export const deleteBook = async (
-  req: Request<{ id: string }>,
-  res: Response,
-) => {
-  const { id } = req.params;
+export const deleteBook = async (req: Request, res: Response) => {
+  const id = (req as any).id;
   try {
     await prisma.book.delete({
       where: {
-        id: Number(id),
+        id: id,
       },
     });
 
