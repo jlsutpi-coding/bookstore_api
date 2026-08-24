@@ -1,6 +1,9 @@
 import prisma from "../lib/prisma";
 import type { Request, Response } from "express";
-import { validateCreateLiteraryTalk } from "../utils/literaryTalksValidator";
+import {
+  validateCreateLiteraryTalk,
+  validateUpdateLiteraryTalk,
+} from "../utils/literaryTalksValidator";
 
 // @desc Get all literary talks
 // @route GET /api/literary-talks
@@ -75,6 +78,61 @@ export const createLiteraryTalk = async (req: Request, res: Response) => {
     return res.status(500).json({
       success: false,
       message: "Internal server error",
+    });
+  }
+};
+
+// @desc Update a literary talk by ID
+// @route PUT /api/literary-talks/:id
+// @access Public
+export const updateLiteraryTalk = async (req: Request, res: Response) => {
+  try {
+    const id = (req as any).id;
+    const { error, data } = await validateUpdateLiteraryTalk(req.body);
+
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid input",
+        errors: error,
+      });
+    }
+
+    const literaryTalk = await prisma.literaryTalk.update({
+      where: {
+        id: id,
+      },
+      data: data,
+    });
+    return res.status(200).json({
+      success: true,
+      data: literaryTalk,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+// @desc Delete a single literary talk
+// @route DELETE /api/literary-talks/:id
+export const deleteLiteraryTalk = async (req: Request, res: Response) => {
+  const id = (req as any).id;
+  try {
+    const deleteLiteraryTalk = await prisma.literaryTalk.delete({
+      where: { id: id },
+    });
+    return res.json({
+      success: true,
+      data: deleteLiteraryTalk,
+    });
+  } catch (error) {
+    console.log("Deleting a literary talk");
+    return res.status(500).json({
+      success: false,
+      error,
     });
   }
 };
