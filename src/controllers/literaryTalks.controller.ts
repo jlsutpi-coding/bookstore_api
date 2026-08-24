@@ -1,5 +1,6 @@
 import prisma from "../lib/prisma";
 import type { Request, Response } from "express";
+import { validateCreateLiteraryTalk } from "../utils/literaryTalksValidator";
 
 // @desc Get all literary talks
 // @route GET /api/literary-talks
@@ -37,6 +38,36 @@ export const getLiteraryTalkById = async (req: Request, res: Response) => {
       });
     }
     return res.status(200).json({
+      success: true,
+      data: literaryTalk,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+// @desc Create a new literary talk
+// @route POST /api/literary-talks
+// @access Public
+export const createLiteraryTalk = async (req: Request, res: Response) => {
+  const { error, data } = validateCreateLiteraryTalk(req.body);
+
+  if (error) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid input",
+      errors: error,
+    });
+  }
+
+  try {
+    const literaryTalk = await prisma.literaryTalk.create({
+      data: data,
+    });
+    return res.status(201).json({
       success: true,
       data: literaryTalk,
     });
