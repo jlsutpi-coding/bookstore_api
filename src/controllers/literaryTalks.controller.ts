@@ -115,3 +115,24 @@ export const updateLiteraryTalk = async (req: Request, res: Response) => {
     });
   }
 };
+
+// @desc Delete a single literary talk
+// @route DELETE /api/literary-talks/:id
+export const deleteLiteraryTalk = async (req: Request, res: Response) => {
+  const id = (req as any).id;
+  try {
+    const deleteLiteraryTalk = await prisma.literaryTalk.delete({
+      where: { id: id },
+    });
+    return res.json({
+      success: true,
+      data: deleteLiteraryTalk,
+    });
+  } catch (error) {
+    console.log("Deleting a literary talk");
+    return res.status(500).json({
+      success: false,
+      error,
+    });
+  }
+};
