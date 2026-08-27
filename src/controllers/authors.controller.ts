@@ -1,16 +1,21 @@
 import prisma from "../lib/prisma";
 
-import type { Request, Response } from "express";
+import type { NextFunction, Request, Response } from "express";
 
 import {
   validateCreateAuthor,
   validateUpdateAuthor,
 } from "../utils/authorsValidator";
+import { CustomError } from "../utils/CustomError";
 
 // @desc Get all authors
 // @route GET /api/authors
 // @access Public
-export const getAuthors = async (req: Request, res: Response) => {
+export const getAuthors = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const authors = await prisma.author.findMany();
     return res.json({
@@ -19,17 +24,18 @@ export const getAuthors = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error("Error fetching authors:", error);
-    res.status(500).json({
-      success: false,
-      error: "Failed to fetch authors",
-    });
+    return next(new CustomError("Failed to fetch authors", 500, error));
   }
 };
 
 // @desc Get a single author by ID
 // @route GET /api/authors/:id
 // @access Public
-export const getAuthorById = async (req: Request, res: Response) => {
+export const getAuthorById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   const id = (req as any).id;
   try {
     const author = await prisma.author.findUnique({
@@ -41,31 +47,26 @@ export const getAuthorById = async (req: Request, res: Response) => {
         data: author,
       });
     } else {
-      res.status(404).json({
-        success: false,
-        error: "Author not found",
-      });
+      return next(new CustomError("Author not found", 404));
     }
   } catch (error) {
     console.error("Error fetching author:", error);
-    res.status(500).json({
-      success: false,
-      error: "Failed to fetch author",
-    });
+    return next(new CustomError("Failed to fetch author", 500, error));
   }
 };
 
 // @desc Create a new author
 // @route POST /api/authors
 // @access Public
-export const createAuthor = async (req: Request, res: Response) => {
+export const createAuthor = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   const { data, error } = validateCreateAuthor(req.body);
 
   if (error) {
-    return res.status(400).json({
-      success: false,
-      error,
-    });
+    return next(new CustomError("Validation fail", 400, error));
   }
 
   try {
@@ -79,27 +80,24 @@ export const createAuthor = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error("Error creating author:", error);
-
-    res.status(500).json({
-      success: false,
-      error: "Failed to create author",
-    });
+    return next(new CustomError("Failed to create author", 500, error));
   }
 };
 
 // @desc Update an existing author
 // @route PUT /api/authors/:id
 // @access Public
-export const updateAuthor = async (req: Request, res: Response) => {
+export const updateAuthor = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   const id = (req as any).id;
 
   const { data, error } = validateUpdateAuthor(req.body);
 
   if (error) {
-    return res.status(400).json({
-      success: false,
-      error,
-    });
+    return next(new CustomError("Bad request", 400, error));
   }
 
   try {
@@ -114,24 +112,22 @@ export const updateAuthor = async (req: Request, res: Response) => {
   } catch (error: any) {
     // Prisma code for "Record to delete does not exist."
     if (error.code === "P2025") {
-      return res.status(404).json({
-        success: false,
-        error: "Author not found",
-      });
+      return next(new CustomError("Author not found", 404));
     }
     console.error("Error updating author:", error);
 
-    return res.status(500).json({
-      success: false,
-      error: "Failed to update author.",
-    });
+    return next(new CustomError("Failed to update author", 500, error));
   }
 };
 
 // @desc Delete an author by ID
 // @route DELETE /api/authors/:id
 // @access Public
-export const deleteAuthor = async (req: Request, res: Response) => {
+export const deleteAuthor = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   const id = (req as any).id;
 
   try {
@@ -145,15 +141,10 @@ export const deleteAuthor = async (req: Request, res: Response) => {
   } catch (error: any) {
     // Prisma code for "Record to delete does not exist."
     if (error.code === "P2025") {
-      return res.status(404).json({
-        success: false,
-        error: "Author not found",
-      });
+      return next(new CustomError("Author not found", 404));
     }
     console.error("Error deleting author:", error);
-    return res.status(500).json({
-      success: false,
-      error: "Failed to delete author",
-    });
+
+    return next(new CustomError("Failed to delete author", 500, error));
   }
 };
