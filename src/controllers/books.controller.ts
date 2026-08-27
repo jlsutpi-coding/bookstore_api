@@ -1,4 +1,4 @@
-import type { Request, Response } from "express";
+import type { NextFunction, Request, Response } from "express";
 
 import prisma from "../lib/prisma";
 
@@ -7,6 +7,7 @@ import {
   validateSearchBook,
   validateUpdateBook,
 } from "../utils/booksValidator";
+import { CustomError } from "../utils/CustomError";
 
 // @desc Get all books
 // @route GET /api/books
@@ -33,6 +34,7 @@ export const getBooks = async (req: Request, res: Response) => {
 export const getBookById = async (
   req: Request<{}, {}, { id: string }>,
   res: Response,
+  next: NextFunction,
 ) => {
   const id = (req as any).id;
 
@@ -46,10 +48,7 @@ export const getBookById = async (
         data: book,
       });
     } else {
-      return res.status(404).json({
-        success: false,
-        error: "Book not found",
-      });
+      return next(new CustomError("Book not found.", 404));
     }
   } catch (error) {
     console.error("Error fetching book:", error);
@@ -167,7 +166,11 @@ export const deleteBook = async (req: Request, res: Response) => {
 
 // @desc Search a book
 // @route GET /api/books?q=bookName
-export const searchBook = async (req: Request, res: Response) => {
+export const searchBook = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   const { q } = req.query;
   const { error, data } = validateSearchBook(q);
 
@@ -186,10 +189,7 @@ export const searchBook = async (req: Request, res: Response) => {
     });
 
     if (!book) {
-      return res.status(404).json({
-        success: false,
-        error: "Book is not found with that title!",
-      });
+      return next(new CustomError("Book is not found with that title!", 404));
     }
 
     return res.json({

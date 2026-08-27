@@ -27,4 +27,3 @@ export const CreateLiteraryTalkSchema = z.object({
 });
 
 export const UpdateLiteraryTalkSchema = CreateLiteraryTalkSchema.partial();
-export type CreateLiteraryTalkInput = z.infer<typeof CreateLiteraryTalkSchema>;
