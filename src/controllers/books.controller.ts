@@ -12,7 +12,11 @@ import { CustomError } from "../utils/CustomError";
 // @desc Get all books
 // @route GET /api/books
 // @access Public
-export const getBooks = async (req: Request, res: Response) => {
+export const getBooks = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const books = await prisma.book.findMany();
     return res.json({
@@ -21,10 +25,7 @@ export const getBooks = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error("Error fetching books:", error);
-    return res.status(500).json({
-      success: false,
-      error: "Failed to fetch books",
-    });
+    return next(new CustomError("Failed to fetch books", 500, error));
   }
 };
 
@@ -32,7 +33,7 @@ export const getBooks = async (req: Request, res: Response) => {
 // @route GET /api/books/:id
 // @access Public
 export const getBookById = async (
-  req: Request<{}, {}, { id: string }>,
+  req: Request,
   res: Response,
   next: NextFunction,
 ) => {
@@ -52,22 +53,20 @@ export const getBookById = async (
     }
   } catch (error) {
     console.error("Error fetching book:", error);
-    return res.status(500).json({
-      success: false,
-      error: "Failed to fetch book",
-    });
+    return next(new CustomError("Failed to fetch book", 500, error));
   }
 };
 
 // @desc Create a new Book
 // @route POST /api/books
-export const createBook = async (req: Request, res: Response) => {
+export const createBook = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   const { error, data } = await validateCreateBook(req.body);
-  if (error || !data) {
-    return res.status(400).json({
-      success: false,
-      error: error,
-    });
+  if (error) {
+    return next(new CustomError("Bad request", 400, error));
   }
   try {
     const newBook = await prisma.book.create({ data });
@@ -79,29 +78,24 @@ export const createBook = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error("Error creating book:", error);
-    return res.status(500).json({
-      success: false,
-      error: "Failed to create book. Please try again later.",
-    });
+    return next(new CustomError("Failed to create book", 500, error));
   }
 };
 
 // @desc Update a single book
 // @route PUT /api/books/:id
 export const updateBook = async (
-  req: Request<{}, {}, { id: string }>,
+  req: Request,
   res: Response,
+  next: NextFunction,
 ) => {
   const id = (req as any).id;
   const bookId = parseInt(id, 10);
 
   const { error, data } = await validateUpdateBook(req.body);
 
-  if (error || !data) {
-    return res.status(400).json({
-      success: false,
-      error,
-    });
+  if (error) {
+    return next(new CustomError("Bad request", 400, error));
   }
 
   try {
@@ -118,23 +112,21 @@ export const updateBook = async (
   } catch (error: any) {
     // Prisma code for "Record to delete does not exist."
     if (error.code === "P2025") {
-      return res.status(404).json({
-        success: false,
-        error: "An unexpected error occured while updating the book.",
-      });
+      return next(new CustomError("Book not found", 404, error));
     }
     console.error("Error updating book:", error);
 
-    return res.status(500).json({
-      success: false,
-      error: "Failed to update book.",
-    });
+    return next(new CustomError("Failed to update book.", 500, error));
   }
 };
 
 // @desc Delete a single book
 // @route DELETE /api/books/:id
-export const deleteBook = async (req: Request, res: Response) => {
+export const deleteBook = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   const id = (req as any).id;
   try {
     await prisma.book.delete({
@@ -150,17 +142,11 @@ export const deleteBook = async (req: Request, res: Response) => {
   } catch (error: any) {
     // Prisma code for "Record to delete does not exist."
     if (error.code === "P2025") {
-      return res.status(404).json({
-        success: false,
-        error: "An unexpected error occured while deleting the book.",
-      });
+      return next(new CustomError("Book not found", 404, error));
     }
 
     console.error("Deleting book error", error);
-    return res.status(500).json({
-      success: false,
-      error: "Failed to delete the book. Ensure the ID is valid.",
-    });
+    return next(new CustomError("Failed to delete book", 500, error));
   }
 };
 
@@ -175,7 +161,7 @@ export const searchBook = async (
   const { error, data } = validateSearchBook(q);
 
   if (error || !data) {
-    return res.status(400).json({ success: false, error });
+    return next(new CustomError("Bad request", 400, error));
   }
 
   try {
@@ -198,9 +184,6 @@ export const searchBook = async (
     });
   } catch (error) {
     console.error("Searching book error:", error);
-    return res.status(500).json({
-      success: false,
-      error: "Failed to search the book.",
-    });
+    return next(new CustomError("Failed to search book", 500, error));
   }
 };
