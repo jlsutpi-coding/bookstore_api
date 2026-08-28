@@ -1,4 +1,8 @@
-import express from "express";
+import express, {
+  type NextFunction,
+  type Request,
+  type Response,
+} from "express";
 
 import prisma from "./lib/prisma";
 import bookRoutes from "./routes/books.route";
@@ -6,6 +10,8 @@ import ordersRouter from "./routes/orders.route";
 import authorRouter from "./routes/authors.route";
 import literaryTalksRouter from "./routes/literaryTalks.route";
 import errorHandler from "./middlewares/error";
+import { CustomError } from "./utils/CustomError";
+import { notFound } from "./middlewares/notFound";
 
 const app = express();
 
@@ -25,6 +31,7 @@ app.use("/api/authors", authorRouter);
 app.use("/api/literary-talks", literaryTalksRouter);
 
 // Error handler
+app.use(notFound);
 app.use(errorHandler);
 
 const startServer = async () => {
