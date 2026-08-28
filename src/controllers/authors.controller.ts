@@ -7,6 +7,7 @@ import {
   validateUpdateAuthor,
 } from "../utils/authorsValidator";
 import { CustomError } from "../utils/CustomError";
+import { handlePrismaError } from "../utils/prismaErrorHandler";
 
 // @desc Get all authors
 // @route GET /api/authors
@@ -23,8 +24,7 @@ export const getAuthors = async (
       data: authors,
     });
   } catch (error) {
-    console.error("Error fetching authors:", error);
-    return next(new CustomError("Failed to fetch authors", 500, error));
+    return next(handlePrismaError(error));
   }
 };
 
@@ -50,8 +50,7 @@ export const getAuthorById = async (
       return next(new CustomError("Author not found", 404));
     }
   } catch (error) {
-    console.error("Error fetching author:", error);
-    return next(new CustomError("Failed to fetch author", 500, error));
+    return next(handlePrismaError(error));
   }
 };
 
@@ -79,8 +78,7 @@ export const createAuthor = async (
       data: newAuthor,
     });
   } catch (error) {
-    console.error("Error creating author:", error);
-    return next(new CustomError("Failed to create author", 500, error));
+    return next(handlePrismaError(error));
   }
 };
 
@@ -110,13 +108,7 @@ export const updateAuthor = async (
       data: updatedAuthor,
     });
   } catch (error: any) {
-    // Prisma code for "Record to delete does not exist."
-    if (error.code === "P2025") {
-      return next(new CustomError("Author not found", 404));
-    }
-    console.error("Error updating author:", error);
-
-    return next(new CustomError("Failed to update author", 500, error));
+    return next(handlePrismaError(error));
   }
 };
 
@@ -139,12 +131,6 @@ export const deleteAuthor = async (
       data: deletedAuthor,
     });
   } catch (error: any) {
-    // Prisma code for "Record to delete does not exist."
-    if (error.code === "P2025") {
-      return next(new CustomError("Author not found", 404));
-    }
-    console.error("Error deleting author:", error);
-
-    return next(new CustomError("Failed to delete author", 500, error));
+    return next(handlePrismaError(error));
   }
 };

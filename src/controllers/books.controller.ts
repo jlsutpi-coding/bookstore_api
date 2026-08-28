@@ -8,6 +8,7 @@ import {
   validateUpdateBook,
 } from "../utils/booksValidator";
 import { CustomError } from "../utils/CustomError";
+import { handlePrismaError } from "../utils/prismaErrorHandler";
 
 // @desc Get all books
 // @route GET /api/books
@@ -24,8 +25,7 @@ export const getBooks = async (
       data: books,
     });
   } catch (error) {
-    console.error("Error fetching books:", error);
-    return next(new CustomError("Failed to fetch books", 500, error));
+    return next(handlePrismaError(error));
   }
 };
 
@@ -52,8 +52,7 @@ export const getBookById = async (
       return next(new CustomError("Book not found.", 404));
     }
   } catch (error) {
-    console.error("Error fetching book:", error);
-    return next(new CustomError("Failed to fetch book", 500, error));
+    return next(handlePrismaError(error));
   }
 };
 
@@ -77,8 +76,7 @@ export const createBook = async (
       message: "Book created successfully",
     });
   } catch (error) {
-    console.error("Error creating book:", error);
-    return next(new CustomError("Failed to create book", 500, error));
+    return next(handlePrismaError(error));
   }
 };
 
@@ -110,13 +108,7 @@ export const updateBook = async (
       message: "Book updated successfully.",
     });
   } catch (error: any) {
-    // Prisma code for "Record to delete does not exist."
-    if (error.code === "P2025") {
-      return next(new CustomError("Book not found", 404, error));
-    }
-    console.error("Error updating book:", error);
-
-    return next(new CustomError("Failed to update book.", 500, error));
+    return next(handlePrismaError(error));
   }
 };
 
@@ -140,13 +132,7 @@ export const deleteBook = async (
       message: "Book deleted successfully.",
     });
   } catch (error: any) {
-    // Prisma code for "Record to delete does not exist."
-    if (error.code === "P2025") {
-      return next(new CustomError("Book not found", 404, error));
-    }
-
-    console.error("Deleting book error", error);
-    return next(new CustomError("Failed to delete book", 500, error));
+    return next(handlePrismaError(error));
   }
 };
 
@@ -183,7 +169,6 @@ export const searchBook = async (
       data: book,
     });
   } catch (error) {
-    console.error("Searching book error:", error);
-    return next(new CustomError("Failed to search book", 500, error));
+    return next(handlePrismaError(error));
   }
 };

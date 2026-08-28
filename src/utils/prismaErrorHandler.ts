@@ -17,7 +17,7 @@ export const handlePrismaError = (error: unknown) => {
         return new CustomError("Invalid relation", 400, error);
 
       default:
-        return new CustomError("Database error ", 500, error);
+        return new CustomError("Database error", 500, error);
     }
   }
 
