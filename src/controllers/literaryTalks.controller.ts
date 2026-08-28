@@ -1,14 +1,23 @@
 import prisma from "../lib/prisma";
-import type { Request, Response } from "express";
+
+import type { NextFunction, Request, Response } from "express";
+
 import {
   validateCreateLiteraryTalk,
   validateUpdateLiteraryTalk,
 } from "../utils/literaryTalksValidator";
 
+import { CustomError } from "../utils/CustomError";
+import { handlePrismaError } from "../utils/prismaErrorHandler";
+
 // @desc Get all literary talks
 // @route GET /api/literary-talks
 // @access Public
-export const getLiteraryTalks = async (req: Request, res: Response) => {
+export const getLiteraryTalks = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const literaryTalks = await prisma.literaryTalk.findMany();
     return res.status(200).json({
@@ -16,17 +25,18 @@ export const getLiteraryTalks = async (req: Request, res: Response) => {
       data: literaryTalks,
     });
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
+    return next(handlePrismaError(error));
   }
 };
 
 // @desc Get a literary talk by ID
 // @route GET /api/literary-talks/:id
 // @access Public
-export const getLiteraryTalkById = async (req: Request, res: Response) => {
+export const getLiteraryTalkById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const id = (req as any).id;
     const literaryTalk = await prisma.literaryTalk.findUnique({
@@ -35,35 +45,29 @@ export const getLiteraryTalkById = async (req: Request, res: Response) => {
       },
     });
     if (!literaryTalk) {
-      return res.status(404).json({
-        success: false,
-        message: "Literary talk not found",
-      });
+      return next(new CustomError("Literary talk not found", 404));
     }
     return res.status(200).json({
       success: true,
       data: literaryTalk,
     });
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
+    return next(handlePrismaError(error));
   }
 };
 
 // @desc Create a new literary talk
 // @route POST /api/literary-talks
 // @access Public
-export const createLiteraryTalk = async (req: Request, res: Response) => {
+export const createLiteraryTalk = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   const { error, data } = validateCreateLiteraryTalk(req.body);
 
   if (error) {
-    return res.status(400).json({
-      success: false,
-      message: "Invalid input",
-      errors: error,
-    });
+    return next(new CustomError("Bad request", 400, error));
   }
 
   try {
@@ -75,27 +79,24 @@ export const createLiteraryTalk = async (req: Request, res: Response) => {
       data: literaryTalk,
     });
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
+    return next(handlePrismaError(error));
   }
 };
 
 // @desc Update a literary talk by ID
 // @route PUT /api/literary-talks/:id
 // @access Public
-export const updateLiteraryTalk = async (req: Request, res: Response) => {
+export const updateLiteraryTalk = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const id = (req as any).id;
     const { error, data } = await validateUpdateLiteraryTalk(req.body);
 
     if (error) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid input",
-        errors: error,
-      });
+      return next(new CustomError("Bad request", 400, error));
     }
 
     const literaryTalk = await prisma.literaryTalk.update({
@@ -109,16 +110,17 @@ export const updateLiteraryTalk = async (req: Request, res: Response) => {
       data: literaryTalk,
     });
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
+    return next(handlePrismaError(error));
   }
 };
 
 // @desc Delete a single literary talk
 // @route DELETE /api/literary-talks/:id
-export const deleteLiteraryTalk = async (req: Request, res: Response) => {
+export const deleteLiteraryTalk = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   const id = (req as any).id;
   try {
     const deleteLiteraryTalk = await prisma.literaryTalk.delete({
@@ -129,10 +131,6 @@ export const deleteLiteraryTalk = async (req: Request, res: Response) => {
       data: deleteLiteraryTalk,
     });
   } catch (error) {
-    console.log("Deleting a literary talk");
-    return res.status(500).json({
-      success: false,
-      error,
-    });
+    return next(handlePrismaError(error));
   }
 };
