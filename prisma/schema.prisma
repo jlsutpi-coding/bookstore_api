@@ -13,12 +13,25 @@ datasource db {
 }
 
 model Author {
-  id            Int            @id @default(autoincrement())
-  name          String         @db.VarChar(100)
-  bio           String?        @db.Text
+  id Int @id @default(autoincrement())
+
+  penName String @unique @map("pen_name") @db.VarChar(150)
+
+  realName String? @map("real_name") @db.VarChar(150)
+
+  bio String? @db.Text
+
+  // Life dates & Origins
+  dateOfBirth DateTime? @map("date_of_birth") @db.Date
+  dateOfDeath DateTime? @map("date_of_death") @db.Date
+  birthPlace  String?   @map("birth_place") @db.VarChar(150)
+
+  isAnonymous Boolean @default(false) @map("is_anonymous")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
   books         Book[]
   literaryTalks LiteraryTalk[]
-  createdAt     DateTime       @default(now()) @map("created_at")
 
   @@map("authors")
 }
