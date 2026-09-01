@@ -15,7 +15,7 @@ datasource db {
 model Author {
   id Int @id @default(autoincrement())
 
-  penName String @unique @map("pen_name") @db.VarChar(150)
+  penName String? @unique @map("pen_name") @db.VarChar(150)
 
   realName String? @map("real_name") @db.VarChar(150)
 
