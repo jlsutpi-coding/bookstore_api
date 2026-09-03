@@ -3,7 +3,7 @@ import prisma from "../lib/prisma";
 import type { NextFunction, Request, Response } from "express";
 
 import {
-  // validateCreateAuthor,
+  validateCreateAuthor,
   validateUpdateAuthor,
 } from "../utils/authorsValidator";
 import { CustomError } from "../utils/CustomError";
@@ -57,60 +57,60 @@ export const getAuthorById = async (
 // @desc Create a new author
 // @route POST /api/authors
 // @access Public
-// export const createAuthor = async (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction,
-// ) => {
-//   const { data, error } = validateCreateAuthor(req.body);
+export const createAuthor = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const { data, error } = validateCreateAuthor(req.body);
 
-//   if (error) {
-//     return next(new CustomError("Validation fail", 400, error));
-//   }
+  if (error) {
+    return next(new CustomError("Validation fail", 400, error));
+  }
 
-//   try {
-//     const newAuthor = await prisma.author.create({
-//       data: data,
-//     });
+  try {
+    const newAuthor = await prisma.author.create({
+      data: data,
+    });
 
-//     return res.status(201).json({
-//       success: true,
-//       data: newAuthor,
-//     });
-//   } catch (error) {
-//     return next(handlePrismaError(error));
-//   }
-// };
+    return res.status(201).json({
+      success: true,
+      data: newAuthor,
+    });
+  } catch (error) {
+    return next(handlePrismaError(error));
+  }
+};
 
 // @desc Update an existing author
 // @route PUT /api/authors/:id
 // @access Public
-// export const updateAuthor = async (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction,
-// ) => {
-//   const id = (req as any).id;
+export const updateAuthor = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const id = (req as any).id;
 
-//   const { data, error } = validateUpdateAuthor(req.body);
+  const { data, error } = validateUpdateAuthor(req.body);
 
-//   if (error) {
-//     return next(new CustomError("Bad request", 400, error));
-//   }
+  if (error) {
+    return next(new CustomError("Bad request", 400, error));
+  }
 
-//   try {
-//     const updatedAuthor = await prisma.author.update({
-//       where: { id: id },
-//       data: data,
-//     });
-//     return res.json({
-//       success: true,
-//       data: updatedAuthor,
-//     });
-//   } catch (error: any) {
-//     return next(handlePrismaError(error));
-//   }
-// };
+  try {
+    const updatedAuthor = await prisma.author.update({
+      where: { id: id },
+      data: data,
+    });
+    return res.json({
+      success: true,
+      data: updatedAuthor,
+    });
+  } catch (error: any) {
+    return next(handlePrismaError(error));
+  }
+};
 
 // @desc Delete an author by ID
 // @route DELETE /api/authors/:id
