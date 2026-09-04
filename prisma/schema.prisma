@@ -26,6 +26,11 @@ model Author {
   dateOfDeath DateTime? @map("date_of_death") @db.Date
   birthPlace  String?   @map("birth_place") @db.VarChar(150)
 
+  // Nationality, Ethnicity, and Education
+  nationality String? @db.VarChar(100)
+  ethnicity   String? @db.VarChar(100)
+  education   String? @db.VarChar(255)
+
   isAnonymous Boolean @default(false) @map("is_anonymous")
 
   createdAt DateTime @default(now()) @map("created_at")
