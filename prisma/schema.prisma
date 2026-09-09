@@ -12,6 +12,15 @@ datasource db {
   provider = "mysql"
 }
 
+// ENUMS
+
+enum AuthorRole {
+  AUTHOR
+  TRANSLATOR
+  CO_AUTHOR
+  COMPILER
+}
+
 model Author {
   id Int @id @default(autoincrement())
 
@@ -35,31 +44,43 @@ model Author {
 
   createdAt DateTime @default(now()) @map("created_at")
 
-  books         Book[]
   literaryTalks LiteraryTalk[]
+  bookAuthors   BookAuthor[]
 
   @@map("authors")
 }
 
 model Book {
-  id            Int      @id @default(autoincrement())
-  title         String   @db.VarChar(200)
-  authorId      Int      @map("author_id")
-  author        Author   @relation(fields: [authorId], references: [id])
-  isbn          String?  @unique @db.VarChar(20)
-  price         Decimal? @db.Decimal(10, 2)
-  genre         String?  @db.VarChar(50)
-  stockQuantity Int      @default(0) @map("stock_quantity")
-  publishedYear Int?     @map("published_year")
+  id             Int      @id @default(autoincrement())
+  title          String   @db.VarChar(200)
+  originalTitle  String?  @map("original_title") @db.VarChar(200)
+  originalAuthor String?  @map("original_author") @db.VarChar(150)
+  isbn           String?  @unique @db.VarChar(20)
+  price          Decimal? @db.Decimal(10, 2)
+  genre          String?  @db.VarChar(50)
+  stockQuantity  Int      @default(0) @map("stock_quantity")
+  publishedYear  Int?     @map("published_year")
 
   // Media / Digital Assets
   youtubeUrl String? @map("youtube_url") @db.VarChar(500)
 
-  createdAt DateTime @default(now()) @map("created_at")
-  orders    Order[]
+  createdAt   DateTime     @default(now()) @map("created_at")
+  orders      Order[]
+  bookAuthors BookAuthor[]
 
-  @@index([authorId])
   @@map("books")
+}
+
+model BookAuthor {
+  bookId   Int        @map("book_id")
+  authorId Int        @map("author_id")
+  role     AuthorRole @default(AUTHOR)
+
+  book   Book   @relation(fields: [bookId], references: [id])
+  author Author @relation(fields: [authorId], references: [id])
+
+  @@id([bookId, authorId])
+  @@map("book_authors")
 }
 
 model LiteraryTalk {
